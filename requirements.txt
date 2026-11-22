@@ -1,0 +1,11 @@
+streamlit>=1.35.0
+sqlalchemy>=2.0.0
+pandas>=2.2.0
+plotly>=5.20.0
+apscheduler>=3.10.0
+python-dotenv>=1.0.0
+openpyxl>=3.1.0
+reportlab>=4.0.0
+kaleido>=0.1.0
+python-dateutil>=2.9.0
+alembic>=1.13.0
