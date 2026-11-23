@@ -104,7 +104,7 @@ if expenses:
 
     for expense in expenses:
         def make_edit_handler(exp):
-            def handler():
+            def handler(_=None):  # Accept arg from button on_click
                 st.session_state[f"editing_{exp.id}"] = True
                 st.session_state[f"edit_amount_{exp.id}"] = exp.amount
                 st.session_state[f"edit_date_{exp.id}"] = exp.date
@@ -113,7 +113,7 @@ if expenses:
             return handler
 
         def make_delete_handler(exp_id):
-            def handler():
+            def handler(_=None):  # Accept arg from button on_click
                 if render_confirm_dialog(f"Delete this expense?", f"delete_exp_{exp_id}"):
                     delete_expense(exp_id)
                     render_success_toast("Expense deleted!")

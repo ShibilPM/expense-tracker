@@ -9,12 +9,12 @@ def validate_expense_input(amount_str: str, expense_date: date,
     Validate expense input.
     Returns (is_valid, error_message)
     """
-    # Validate amount
+    # Validate amount (allows positive expenses and negative refunds)
     amount = validate_amount(amount_str)
     if amount is None:
-        return False, "Please enter a valid amount (positive number)"
+        return False, "Please enter a valid amount (non-zero number, use - for refunds)"
 
-    if amount > 1000000:  # 10 lakh limit
+    if abs(amount) > 1000000:  # 10 lakh limit (absolute value)
         return False, "Amount seems too high. Please verify."
 
     # Validate date

@@ -92,7 +92,7 @@ def render_amount_input(label: str = "Amount (₹)", default: float = 0.00,
     """Render amount input with validation."""
     amount = st.number_input(
         label,
-        min_value=0.00,
+        min_value=-1000000.0,  # Allow negative for refunds
         max_value=1000000.0,
         value=default,
         step=1.0,

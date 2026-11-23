@@ -95,10 +95,14 @@ def get_week_of_month(d: date) -> int:
 
 
 def validate_amount(amount_str: str) -> Optional[float]:
-    """Validate and convert amount string to float."""
+    """Validate and convert amount string to float.
+
+    Allows positive (expenses) and negative (refunds) amounts.
+    Rejects zero and non-numeric values.
+    """
     try:
         amount = float(amount_str.replace(",", "").strip())
-        if amount <= 0:
+        if amount == 0:
             return None
         return round(amount, 2)
     except (ValueError, AttributeError):
