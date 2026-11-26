@@ -43,8 +43,11 @@ with st.container(border=True):
             str(amount), expense_date, category_id, user_id
         )
         if is_valid:
-            create_expense(user_id, category_id, amount, expense_date, notes or None)
-            render_success_toast("Expense saved successfully!")
+            result = create_expense(user_id, category_id, amount, expense_date, notes or None)
+            if result:
+                render_success_toast("Expense saved successfully!")
+            else:
+                render_error_toast("Could not save — possible duplicate or constraint issue. Please try editing an existing expense.")
             st.rerun()
         else:
             render_error_toast(error_msg)

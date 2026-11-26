@@ -158,18 +158,29 @@ def delete_category(cat_id: int) -> bool:
 
 # ========== EXPENSE OPERATIONS ==========
 def create_expense(user_id: int, category_id: int, amount: float,
-                   expense_date: date, notes: str = None) -> Expense:
-    with get_session() as session:
-        expense = Expense(
-            user_id=user_id,
-            category_id=category_id,
-            amount=amount,
-            date=expense_date,
-            notes=notes
-        )
-        session.add(expense)
-        session.flush()
-        return expense
+                   expense_date: date, notes: str = None) -> Optional[Expense]:
+    """Create a new expense. Returns None if duplicate/constraint violation."""
+    from sqlalchemy.exc import IntegrityError
+    try:
+        with get_session() as session:
+            expense = Expense(
+                user_id=user_id,
+                category_id=category_id,
+                amount=amount,
+                date=expense_date,
+                notes=notes
+            )
+            session.add(expense)
+            session.flush()
+            return expense
+    except IntegrityError:
+        # Duplicate entry — likely already exists or constraint violation
+        session.rollback()
+        return None
+    except Exception as e:
+        session.rollback()
+        print(f"❌ create_expense error: {e}")
+        return None
 
 
 def get_expenses(user_id: Optional[int] = None,
