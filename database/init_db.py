@@ -12,7 +12,7 @@ def init_database():
     Base.metadata.create_all(engine)
 
     # Reset sequences to prevent "duplicate key" errors after migration from SQLite
-    # This ensures auto-increment IDs start after existing data
+    # This ensures auto-increment IDs start AFTER existing data (MAX + 1)
     with engine.connect() as conn:
         # Get all table names
         inspector = inspect(engine)
@@ -23,9 +23,11 @@ def init_database():
             has_id = any(col['name'] == 'id' for col in inspector.get_columns(table))
             if has_id:
                 try:
-                    # Reset the sequence for the id column
+                    # Get the max existing ID
+                    max_result = conn.execute(text(f"SELECT COALESCE(MAX(id), 0) FROM {table}")).scalar()
+                    # Reset sequence to MAX + 1 so new inserts don't conflict
                     seq_name = f"{table}_id_seq"
-                    conn.execute(text(f"SELECT setval('{seq_name}', 1, (SELECT MAX(id) FROM {table}) OR 1)"))
+                    conn.execute(text(f"SELECT setval('{seq_name}', {max_result + 1}, true)"))
                 except Exception:
                     # Some tables may not have sequences; ignore if it fails
                     pass
