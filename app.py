@@ -12,11 +12,25 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Initialize database on first run
+# Initialize database on first run (local) or skip on cloud (PostgreSQL)
 from database.init_db import init_database
-if not Path("expenses.db").exists():
+
+# Only initialize SQLite locally; on Streamlit Cloud with PostgreSQL,
+# tables should already exist from migration
+import os
+db_url = os.getenv("DATABASE_URL", "")
+is_postgresql = db_url.startswith("postgresql")
+
+if not is_postgresql and not Path("expenses.db").exists():
     with st.spinner("Initializing database..."):
         init_database()
+elif is_postgresql:
+    # On PostgreSQL, ensure tables exist (idempotent)
+    try:
+        init_database()
+    except Exception:
+        # Tables may already exist from migration; that's OK
+        pass
 
 # Get user names from database (safe - returns strings, not SQLAlchemy objects)
 from database.crud import get_user_names
