@@ -158,8 +158,8 @@ def delete_category(cat_id: int) -> bool:
 
 # ========== EXPENSE OPERATIONS ==========
 def create_expense(user_id: int, category_id: int, amount: float,
-                   expense_date: date, notes: str = None) -> Optional[Expense]:
-    """Create a new expense. Returns None if error occurs."""
+                   expense_date: date, notes: str = None) -> Expense:
+    """Create a new expense. Raises exception on failure (shown to user)."""
     from sqlalchemy.exc import IntegrityError
     try:
         with get_session() as session:
@@ -174,15 +174,12 @@ def create_expense(user_id: int, category_id: int, amount: float,
             session.flush()
             return expense
     except IntegrityError as e:
-        # Show the actual error for debugging
         session.rollback()
-        # Re-raise or return None — for now, return None with error info
-        print(f"⚠️ create_expense IntegrityError: {e}")
-        return None
+        # Re-raise with a descriptive message for the UI
+        raise ValueError(f"Could not save expense: {str(e)[:150]}")
     except Exception as e:
         session.rollback()
-        print(f"❌ create_expense error: {type(e).__name__}: {e}")
-        return None
+        raise RuntimeError(f"Error saving expense: {str(e)[:150]}")
 
 
 def get_expenses(user_id: Optional[int] = None,
