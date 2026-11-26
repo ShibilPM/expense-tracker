@@ -11,6 +11,25 @@ def init_database():
     # Create all tables (idempotent — no-op if tables exist)
     Base.metadata.create_all(engine)
 
+    # Reset sequences to prevent "duplicate key" errors after migration from SQLite
+    # This ensures auto-increment IDs start after existing data
+    with engine.connect() as conn:
+        # Get all table names
+        inspector = inspect(engine)
+        tables = inspector.get_table_names()
+
+        for table in tables:
+            # Check if table has an 'id' column (primary key)
+            has_id = any(col['name'] == 'id' for col in inspector.get_columns(table))
+            if has_id:
+                try:
+                    # Reset the sequence for the id column
+                    seq_name = f"{table}_id_seq"
+                    conn.execute(text(f"SELECT setval('{seq_name}', 1, (SELECT MAX(id) FROM {table}) OR 1)"))
+                except Exception:
+                    # Some tables may not have sequences; ignore if it fails
+                    pass
+
     Session = sessionmaker(bind=engine)
     session = Session()
 
