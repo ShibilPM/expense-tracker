@@ -10,4 +10,3 @@ kaleido>=0.1.0
 python-dateutil>=2.9.0
 alembic>=1.13.0
 psycopg2-binary>=1.1.0  # PostgreSQL driver for cloud deployment
-psycopg2-binaryS
